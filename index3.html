@@ -1,20 +1,206 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firmware Installer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #eef2ff;
+            --primary-dark: #3a56d4;
+            --accent: #06d6a0;
+            --background: #f8f9fa;
+            --text: #212529;
+            --text-light: #6c757d;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            --border-radius: 12px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 90%;
+            padding: 2.5rem;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+        
+        .install-section {
+            margin: 2.5rem 0;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            background-color: var(--primary-light);
+            border: none;
+        }
+        
+        .steps {
+            text-align: left;
+            margin: 2.5rem 0;
+            padding: 0 1rem;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .step-text {
+            flex: 1;
+        }
+        
+        .footer {
+            margin-top: 2.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .error-container {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+        }
+        
+        .error-header {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .error-body {
+            background-color: #fff;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            margin-top: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Customize the ESP web install button */
+        esp-web-install-button {
+            --background-color: var(--primary);
+            --button-color: white;
+            --progress-color: var(--accent);
+            margin: 1rem 0;
+            display: block;
+        }
+    </style>
+</head>
 <body>
-    <div id="main" style="display: none;">
-        <h1>ESP-Web-Tool-Test</h1>
-        <script type="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
-        <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
-        <div id="notSupported" style="display: none;">
-            Your browser does not support the Web Serial API. Try Chrome
+    <div class="container" id="main" style="display: none;">
+        <h1>Firmware Installer</h1>
+        <p class="subtitle">Install the latest firmware directly through your browser</p>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">Connect your device to your computer via USB</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">Click the Install button below and select the correct port</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">Wait for the installation to complete</div>
+            </div>
+        </div>
+        
+        <div class="install-section">
+            <script type="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
+            <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
+        </div>
+        
+        <div class="footer">
+            <p>If you encounter any issues during installation, try restarting your device and browser.</p>
         </div>
     </div>
+    
+    <div class="container" id="notSupported" style="display: none;">
+        <h1>Browser Not Supported</h1>
+        <p class="subtitle">We couldn't access the required features for firmware installation</p>
+        
+        <div class="error-container">
+            <div class="error-body">
+                <p>Your browser doesn't support the Web Serial API needed for this installation tool.</p>
+                <p>Please use a supported browser like Google Chrome or Microsoft Edge.</p>
+                <a href="https://www.google.com/chrome/" class="button">Download Chrome</a>
+            </div>
+        </div>
+    </div>
+    
     <script>
         if (navigator.serial) {
             document.getElementById("notSupported").style.display = 'none';
             document.getElementById("main").style.display = 'block';
-
-            // Funktion zum Überprüfen des Fehlers und Weiterleiten
+            
+            // Function to check for error and redirect
             function checkForError() {
                 const installButton = document.querySelector('esp-web-install-button');
                 if (installButton && installButton.shadowRoot) {
@@ -27,8 +213,8 @@
                     }
                 }
             }
-
-            // Überprüfen Sie den Fehler in regelmäßigen Abständen
+            
+            // Check for error at regular intervals
             setInterval(checkForError, 600);
         } else {
             document.getElementById("notSupported").style.display = 'block';
