@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP-Web-Tool-Test</title>
+    <style>
+        :root {
+            --main-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --error-color: #dc3545;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--main-color);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        
+        .install-area {
+            margin: 30px 0;
+        }
+        
+        .error-message {
+            background-color: #fff8f8;
+            border-left: 4px solid var(--error-color);
+            color: var(--error-color);
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            border-radius: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="main">
+            <h1>ESP-Web-Tool-Test</h1>
+            
+            <div class="install-area">
+                <script type="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
+                <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
+            </div>
+            
+            <div class="footer">
+                <p>Verbinden Sie Ihr ESP-Gerät und klicken Sie auf "Install" um die Firmware zu aktualisieren.</p>
+            </div>
+        </div>
+        
+        <div id="notSupported" class="error-message" style="display: none;">
+            <strong>Nicht unterstützt:</strong> Ihr Browser unterstützt die Web Serial API nicht. Bitte verwenden Sie Google Chrome oder Microsoft Edge.
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (navigator.serial) {
+                document.getElementById("notSupported").style.display = 'none';
+                document.getElementById("main").style.display = 'block';
+            } else {
+                document.getElementById("notSupported").style.display = 'block';
+                document.getElementById("main").style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
