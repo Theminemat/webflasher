@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
 <body>
+    <div id="main" style="display: none;">
     <h1>ESP-Web-Tool-Test</h1>
     <script type="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
     <esp-web-install-button manifest="test/manifest.json"></esp-web-install-button>
-
+     <div id="notSupported" style="display: none;">
+        Your browser does not support the Web Serial API. Try Chrome
+    </div>
       <script>
         if(navigator.serial){
             document.getElementById("notSupported").style.display = 'none';
