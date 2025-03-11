@@ -22,14 +22,14 @@
                     if (flashProgress && flashProgress.shadowRoot) {
                         const errorElement = flashProgress.shadowRoot.querySelector('h2.error');
                         if (errorElement && errorElement.textContent.includes("Didn't get enough status bytes")) {
-                            window.location.href = 'https://theminemat.de';
+                            window.location.href = 'https://tools.theminemat.de/error?mode=success&title=Installation+was+successful%21&message=You+have+successfully+installed+the+software.+You+may+need+to+restart+your+device.&animation=1&textanimation=2';
                         }
                     }
                 }
             }
 
             // Überprüfen Sie den Fehler in regelmäßigen Abständen
-            setInterval(checkForError, 1000);
+            setInterval(checkForError, 600);
         } else {
             document.getElementById("notSupported").style.display = 'block';
             document.getElementById("main").style.display = 'none';
