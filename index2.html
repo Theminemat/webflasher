@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP-Web-Tool-Test</title>
+    <title>ESP Web Tool Test</title>
     <style>
         :root {
             --main-color: #007bff;
@@ -65,7 +65,7 @@
 <body>
     <div class="container">
         <div id="main">
-            <h1>ESP-Web-Tool-Test</h1>
+            <h1>ESP Web Tool Test</h1>
             
             <div class="install-area">
                 <script type="module" src="https://unpkg.com/esp-web-tools@3.4.2/dist/web/install-button.js?module"></script>
@@ -73,12 +73,12 @@
             </div>
             
             <div class="footer">
-                <p>Connect your device, hold down boot and click install, hold down the boot button until the writing process beginns!</p>
+                <p>Connect your ESP device and click "Install" to update the firmware.</p>
             </div>
         </div>
         
         <div id="notSupported" class="error-message" style="display: none;">
-            <strong>Not supportet:</strong> Your browser isn't supported, please use Google Chrome or Microsoft Edge instead.
+            <strong>Not supported:</strong> Your browser doesn't support the Web Serial API. Please use Google Chrome or Microsoft Edge.
         </div>
     </div>
     
@@ -92,53 +92,65 @@
                 document.getElementById("main").style.display = 'none';
             }
 
-            // Überwachung des DOM auf Texte, die "Error: Didn't get enough status bytes" enthalten
-            const targetUrl = "https://tools.theminemat.de/error?mode=success&title=Installation+was+successfully%21&message=You+have+successfully+installed+the+software.+You+may+need+to+restart+your+device.&animation=1&textanimation=2";
+            // Target URL for redirection
+            const targetUrl = "https://tools.theminemat.de/error?mode=success&title=Installation+was+successful%21&message=You+have+successfully+installed+the+software.+You+may+need+to+restart+your+device.&animation=1&textanimation=2";
             
-            // Erstelle einen MutationObserver
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    // Überprüfe Text in allen hinzugefügten Knoten
-                    if (mutation.addedNodes.length) {
-                        mutation.addedNodes.forEach(function(node) {
-                            // Prüfe, ob es ein Element mit Text ist
-                            if (node.textContent && node.textContent.includes("Error: Didn't get enough status bytes")) {
-                                console.log("Fehlertext erkannt, leite um...");
-                                window.location.href = targetUrl;
-                            }
-                            
-                            // Prüfe auch den Text in Unterelementen
-                            if (node.nodeType === Node.ELEMENT_NODE) {
-                                const textElements = node.querySelectorAll('*');
-                                textElements.forEach(function(element) {
-                                    if (element.textContent && element.textContent.includes("Error: Didn't get enough status bytes")) {
-                                        console.log("Fehlertext in Unterelement erkannt, leite um...");
-                                        window.location.href = targetUrl;
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    
-                    // Überprüfe auch Änderungen in bestehenden Texten
-                    if (mutation.type === 'characterData' && mutation.target.textContent && 
-                        mutation.target.textContent.includes("Error: Didn't get enough status bytes")) {
-                        console.log("Fehlertext in Textänderung erkannt, leite um...");
+            // Function to check for the error text
+            function checkForErrorText() {
+                // Look for elements with class="error" that might contain our target text
+                const errorElements = document.querySelectorAll('.error');
+                
+                errorElements.forEach(function(element) {
+                    if (element.textContent && element.textContent.includes("Error: Didn't get enough status bytes")) {
+                        console.log("Error detected in .error class element, redirecting...");
                         window.location.href = targetUrl;
                     }
                 });
+                
+                // Also check the entire DOM for the error text in case it appears elsewhere
+                const allText = document.body.innerText;
+                if (allText.includes("Error: Didn't get enough status bytes")) {
+                    console.log("Error text found in body, redirecting...");
+                    window.location.href = targetUrl;
+                }
+                
+                // Also look within the esp-web-install-button shadow DOM if possible
+                const installButton = document.querySelector('esp-web-install-button');
+                if (installButton && installButton.shadowRoot) {
+                    const shadowContent = installButton.shadowRoot.textContent;
+                    if (shadowContent.includes("Error: Didn't get enough status bytes")) {
+                        console.log("Error found in esp-web-install-button shadow DOM, redirecting...");
+                        window.location.href = targetUrl;
+                    }
+                }
+            }
+            
+            // Create a MutationObserver
+            const observer = new MutationObserver(function(mutations) {
+                checkForErrorText();
             });
             
-            // Konfiguriere den Observer
+            // Configure the observer
             const config = { 
-                childList: true,      // Überwacht Hinzufügen/Entfernen von Kindelementen
-                attributes: false,    // Überwacht keine Attributänderungen
-                characterData: true,  // Überwacht Textänderungen
-                subtree: true         // Überwacht den gesamten DOM-Baum
+                childList: true,      // Watch for child element additions/removals
+                attributes: true,     // Watch for attribute changes (might be needed for dynamic classes)
+                characterData: true,  // Watch for text changes
+                subtree: true         // Watch the entire DOM tree
             };
             
-            // Starte die Überwachung des gesamten DOM
+            // Start monitoring the entire DOM
             observer.observe(document.body, config);
+            
+            // Also check periodically in case the mutation observer misses something
+            setInterval(checkForErrorText, 1000);
+            
+            // Add a specific listener for the esp-web-install-button
+            document.body.addEventListener('click', function(e) {
+                // Delay check to allow error to appear after click actions
+                setTimeout(checkForErrorText, 500);
+                setTimeout(checkForErrorText, 1500);
+                setTimeout(checkForErrorText, 3000);
+            }, true);
         });
     </script>
 </body>
