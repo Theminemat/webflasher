@@ -1,5 +1,5 @@
 {
-   "name": "WebToolTest",
+   "name": "CheatSheet-X",
    "builds": [
       {
          "chipFamily": "ESP32",
@@ -20,6 +20,10 @@
             {
                "path": "firmware.bin",
                "offset": 65536
+            },
+            {
+               "path": "spiffs.bin",
+               "offset": 2686976
             }
          ]
       }
