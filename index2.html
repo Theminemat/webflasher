@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheatSheet Updater</title>
+    <title>ESP Web Tool Test</title>
     <style>
         :root {
             --main-color: #007bff;
@@ -60,6 +60,19 @@
             font-size: 0.85rem;
             color: var(--secondary-color);
         }
+        
+        #debugOutput {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -75,6 +88,11 @@
             <div class="footer">
                 <p>Connect your ESP device and click "Install" to update the firmware.</p>
             </div>
+            
+            <div id="debugOutput" style="display: none;">
+                <strong>Debug Information:</strong><br>
+                <div id="debugContent"></div>
+            </div>
         </div>
         
         <div id="notSupported" class="error-message" style="display: none;">
@@ -83,6 +101,111 @@
     </div>
     
     <script>
+        // Enable debug mode
+        const DEBUG = true;
+        
+        // Target URL for redirection
+        const targetUrl = "https://tools.theminemat.de/error?mode=success&title=Installation+was+successful%21&message=You+have+successfully+installed+the+software.+You+may+need+to+restart+your+device.&animation=1&textanimation=2";
+        
+        // Debug logging function
+        function log(message) {
+            if (DEBUG) {
+                console.log(message);
+                const debugContent = document.getElementById('debugContent');
+                if (debugContent) {
+                    debugContent.innerHTML += message + '<br>';
+                    document.getElementById('debugOutput').style.display = 'block';
+                }
+            }
+        }
+        
+        // Function to check for the error text everywhere possible
+        function checkForErrorText() {
+            log("Running error check...");
+            
+            // Method 1: Direct element search with class
+            const errorElements = document.querySelectorAll('.error');
+            errorElements.forEach(function(element) {
+                log("Found .error element: " + element.textContent.substring(0, 50));
+                if (element.textContent.includes("Error: Didn't get enough status bytes")) {
+                    log("Error detected in .error class element, redirecting...");
+                    window.location.href = targetUrl;
+                    return;
+                }
+            });
+            
+            // Method 2: Check all div elements in the document
+            const allDivs = document.querySelectorAll('div');
+            allDivs.forEach(function(div) {
+                if (div.textContent.includes("Error: Didn't get enough status bytes")) {
+                    log("Error detected in div element, redirecting...");
+                    window.location.href = targetUrl;
+                    return;
+                }
+            });
+            
+            // Method 3: Check the entire body text
+            const bodyText = document.body.innerText;
+            if (bodyText.includes("Error: Didn't get enough status bytes")) {
+                log("Error detected in body text, redirecting...");
+                window.location.href = targetUrl;
+                return;
+            }
+            
+            // Method 4: Try to access the esp-web-install-button component
+            try {
+                const installButton = document.querySelector('esp-web-install-button');
+                if (installButton) {
+                    // Try to access shadowRoot if available
+                    if (installButton.shadowRoot) {
+                        const shadowRoot = installButton.shadowRoot;
+                        if (shadowRoot.textContent.includes("Error: Didn't get enough status bytes")) {
+                            log("Error detected in shadowRoot, redirecting...");
+                            window.location.href = targetUrl;
+                            return;
+                        }
+                        
+                        // Look for error elements within the shadow DOM
+                        const shadowErrors = shadowRoot.querySelectorAll('.error');
+                        shadowErrors.forEach(function(errorEl) {
+                            log("Found shadow .error element: " + errorEl.textContent.substring(0, 50));
+                            if (errorEl.textContent.includes("Error: Didn't get enough status bytes")) {
+                                log("Error detected in shadow .error element, redirecting...");
+                                window.location.href = targetUrl;
+                                return;
+                            }
+                        });
+                    } else {
+                        log("No shadowRoot available on esp-web-install-button");
+                    }
+                    
+                    // Check the innerHTML of the component itself
+                    if (installButton.innerHTML.includes("Error: Didn't get enough status bytes")) {
+                        log("Error detected in component innerHTML, redirecting...");
+                        window.location.href = targetUrl;
+                        return;
+                    }
+                }
+            } catch (e) {
+                log("Error accessing component: " + e.message);
+            }
+        }
+        
+        // Force redirect after detecting console errors related to status bytes
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            
+            // Convert arguments to string for easy checking
+            const errorMsg = args.join(' ');
+            log("Console error: " + errorMsg.substring(0, 50));
+            
+            if (errorMsg.includes("Didn't get enough status bytes")) {
+                log("Error detected in console.error, redirecting...");
+                window.location.href = targetUrl;
+            }
+        };
+        
         document.addEventListener('DOMContentLoaded', function() {
             if (navigator.serial) {
                 document.getElementById("notSupported").style.display = 'none';
@@ -92,65 +215,68 @@
                 document.getElementById("main").style.display = 'none';
             }
 
-            // Target URL for redirection
-            const targetUrl = "https://tools.theminemat.de/error?mode=success&title=Installation+was+successful%21&message=You+have+successfully+installed+the+software.+You+may+need+to+restart+your+device.&animation=1&textanimation=2";
+            log("Page loaded, setting up error detection...");
             
-            // Function to check for the error text
-            function checkForErrorText() {
-                // Look for elements with class="error" that might contain our target text
-                const errorElements = document.querySelectorAll('.error');
-                
-                errorElements.forEach(function(element) {
-                    if (element.textContent && element.textContent.includes("Error: Didn't get enough status bytes")) {
-                        console.log("Error detected in .error class element, redirecting...");
-                        window.location.href = targetUrl;
-                    }
-                });
-                
-                // Also check the entire DOM for the error text in case it appears elsewhere
-                const allText = document.body.innerText;
-                if (allText.includes("Error: Didn't get enough status bytes")) {
-                    console.log("Error text found in body, redirecting...");
-                    window.location.href = targetUrl;
-                }
-                
-                // Also look within the esp-web-install-button shadow DOM if possible
-                const installButton = document.querySelector('esp-web-install-button');
-                if (installButton && installButton.shadowRoot) {
-                    const shadowContent = installButton.shadowRoot.textContent;
-                    if (shadowContent.includes("Error: Didn't get enough status bytes")) {
-                        console.log("Error found in esp-web-install-button shadow DOM, redirecting...");
-                        window.location.href = targetUrl;
-                    }
-                }
-            }
-            
-            // Create a MutationObserver
+            // Create a MutationObserver with higher frequency checks
             const observer = new MutationObserver(function(mutations) {
+                log("DOM mutation detected");
                 checkForErrorText();
             });
             
-            // Configure the observer
+            // Configure the observer with maximum sensitivity
             const config = { 
-                childList: true,      // Watch for child element additions/removals
-                attributes: true,     // Watch for attribute changes (might be needed for dynamic classes)
-                characterData: true,  // Watch for text changes
-                subtree: true         // Watch the entire DOM tree
+                childList: true,
+                attributes: true,
+                characterData: true,
+                subtree: true
             };
             
             // Start monitoring the entire DOM
             observer.observe(document.body, config);
             
-            // Also check periodically in case the mutation observer misses something
-            setInterval(checkForErrorText, 1000);
+            // Check frequently
+            setInterval(checkForErrorText, 500);
             
-            // Add a specific listener for the esp-web-install-button
-            document.body.addEventListener('click', function(e) {
-                // Delay check to allow error to appear after click actions
-                setTimeout(checkForErrorText, 500);
-                setTimeout(checkForErrorText, 1500);
-                setTimeout(checkForErrorText, 3000);
+            // Monitor all clicks on the page
+            document.addEventListener('click', function(e) {
+                log("Click detected, checking for errors...");
+                
+                // Multiple checks after clicks with different delays
+                for (let i = 1; i <= 10; i++) {
+                    setTimeout(checkForErrorText, i * 300);
+                }
             }, true);
+            
+            // Error event listener for the whole document
+            window.addEventListener('error', function(e) {
+                log("Global error event: " + e.message);
+                if (e.message && e.message.includes("Didn't get enough status bytes")) {
+                    log("Error detected in error event, redirecting...");
+                    window.location.href = targetUrl;
+                }
+            }, true);
+            
+            // Special case: Monitor any changes to element classes
+            const classObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const target = mutation.target;
+                        if (target.classList.contains('error')) {
+                            log("Element got 'error' class: " + target.textContent.substring(0, 50));
+                            if (target.textContent.includes("Error: Didn't get enough status bytes")) {
+                                log("Error detected in new error class element, redirecting...");
+                                window.location.href = targetUrl;
+                            }
+                        }
+                    }
+                });
+            });
+            
+            classObserver.observe(document.body, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['class']
+            });
         });
     </script>
 </body>
