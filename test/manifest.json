@@ -1,53 +1,27 @@
 {
-
-   "name":"WebToolTest",
-
-   "builds":[
-
+   "name": "WebToolTest",
+   "builds": [
       {
-
-         "chipFamily":“ESP32”,
-
-         "improv":false,
-
-         "parts":[
-
+         "chipFamily": "ESP32",
+         "improv": false,
+         "parts": [
             {
-
-               "path":“bootloader.bin”,
-
-               "offset":4096
-
+               "path": "bootloader.bin",
+               "offset": 4096
             },
-
             {
-
-               "path":"partitions.bin",
-
-               "offset":32768
-
+               "path": "partitions.bin",
+               "offset": 32768
             },
-
             {
-
-               "path":“boot_app0.bin”,
-
-               "offset":57344
-
+               "path": "boot_app0.bin",
+               "offset": 57344
             },
-
             {
-
-               "path":"firmware.bin",
-
-               "offset":65536
-
+               "path": "firmware.bin",
+               "offset": 65536
             }
-
          ]
-
       }
-
    ]
-
 }
